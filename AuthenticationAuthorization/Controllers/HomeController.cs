@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace AuthenticationAuthorization.Controllers
 {
@@ -22,25 +19,39 @@ namespace AuthenticationAuthorization.Controllers
             return View();
         }
 
+        [Authorize(Policy = "Claim.DoB")]
+        public IActionResult SecretPolicy()
+        {
+            return View(nameof(Secret));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult SecretRole()
+        {
+            return View(nameof(Secret));
+        }
+
         public IActionResult Authenticate()
         {
-            var grandmaClaims = new List<Claim>()
+            List<Claim> grandmaClaims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, "Bob"),
                 new Claim(ClaimTypes.Email, "Bob@gmail.com"),
+                new Claim(ClaimTypes.DateOfBirth, "11/11/2000"),
+                new Claim(ClaimTypes.Role, "Admin"),
                 new Claim("Grandma.Says", "Very nice page.")
             };
 
-            var licenseClaims = new List<Claim>()
+            List<Claim> licenseClaims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, "Bob K Foo"),
                 new Claim("DrivingLicense", "A+")
             };
 
-            var grandmaIdentity = new ClaimsIdentity(grandmaClaims, "Grandma Identity");
-            var licenseIdentity = new ClaimsIdentity(licenseClaims, "Goverment");
+            ClaimsIdentity grandmaIdentity = new ClaimsIdentity(grandmaClaims, "Grandma Identity");
+            ClaimsIdentity licenseIdentity = new ClaimsIdentity(licenseClaims, "Goverment");
 
-            var userPrincipal = new ClaimsPrincipal(new[] { grandmaIdentity, licenseIdentity });
+            ClaimsPrincipal userPrincipal = new ClaimsPrincipal(new[] { grandmaIdentity, licenseIdentity });
 
             HttpContext.SignInAsync(userPrincipal);
 
