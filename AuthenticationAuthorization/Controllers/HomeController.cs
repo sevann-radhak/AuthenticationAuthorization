@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace AuthenticationAuthorization.Controllers
 {
@@ -31,6 +32,7 @@ namespace AuthenticationAuthorization.Controllers
             return View(nameof(Secret));
         }
 
+        [AllowAnonymous]
         public IActionResult Authenticate()
         {
             List<Claim> grandmaClaims = new List<Claim>()
@@ -56,6 +58,20 @@ namespace AuthenticationAuthorization.Controllers
             HttpContext.SignInAsync(userPrincipal);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> DoStuff([FromServices] IAuthorizationService authorizationService)
+        {
+            var builder = new AuthorizationPolicyBuilder("Schema");
+            var customPolicy = builder.RequireClaim("Hello").Build();
+            var authResult = await authorizationService.AuthorizeAsync(User, customPolicy);
+
+            if(authResult.Succeeded)
+            {
+                return View(nameof(Index));
+            }
+
+            return View(nameof(Index));
         }
     }
 }

@@ -1,7 +1,23 @@
-﻿
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
+
+@if (User.Identity.IsAuthenticated)
+{
+    <h1>User is authenticated</h1>
+}
+else
+{
+    <h1>User is NOT authenticated</h1>
+}
+
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
+
+@if ((await authorizationService.AuthorizeAsync(User, "Claim.DoB")).Succeeded)
+{
+    <h1>User has DoB Claim</h1>
+}
 
