@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using AuthenticationAuthorization.CustomPolicyProvider;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -32,6 +33,18 @@ namespace AuthenticationAuthorization.Controllers
             return View(nameof(Secret));
         }
 
+        [SecurityLevel(5)]
+        public IActionResult SecretLevel()
+        {
+            return View(nameof(Secret));
+        }
+
+        [SecurityLevel(10)]
+        public IActionResult SecretHigherLevel()
+        {
+            return View(nameof(Secret));
+        }
+
         [AllowAnonymous]
         public IActionResult Authenticate()
         {
@@ -41,6 +54,7 @@ namespace AuthenticationAuthorization.Controllers
                 new Claim(ClaimTypes.Email, "Bob@gmail.com"),
                 new Claim(ClaimTypes.DateOfBirth, "11/11/2000"),
                 new Claim(ClaimTypes.Role, "Admin"),
+                new Claim(DynamicPolicies.SecurityLevel, "7"),
                 new Claim("Grandma.Says", "Very nice page.")
             };
 
@@ -62,11 +76,11 @@ namespace AuthenticationAuthorization.Controllers
 
         public async Task<IActionResult> DoStuff([FromServices] IAuthorizationService authorizationService)
         {
-            var builder = new AuthorizationPolicyBuilder("Schema");
-            var customPolicy = builder.RequireClaim("Hello").Build();
-            var authResult = await authorizationService.AuthorizeAsync(User, customPolicy);
+            AuthorizationPolicyBuilder builder = new AuthorizationPolicyBuilder("Schema");
+            AuthorizationPolicy customPolicy = builder.RequireClaim("Hello").Build();
+            AuthorizationResult authResult = await authorizationService.AuthorizeAsync(User, customPolicy);
 
-            if(authResult.Succeeded)
+            if (authResult.Succeeded)
             {
                 return View(nameof(Index));
             }

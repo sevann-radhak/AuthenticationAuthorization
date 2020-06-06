@@ -1,5 +1,6 @@
 using AuthenticationAuthorization.AuthorizationReequirements;
 using AuthenticationAuthorization.Controllers;
+using AuthenticationAuthorization.CustomPolicyProvider;
 using AuthenticationAuthorization.Transformer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -34,14 +35,16 @@ namespace AuthenticationAuthorization
                 });
             });
 
+            services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
+            services.AddScoped<IAuthorizationHandler, SecurityLevelHandler>();
             services.AddScoped<IAuthorizationHandler, CustomRequireClaimHandler>();
             services.AddScoped<IAuthorizationHandler, CookieJarAuthorizationHandler>();
             services.AddScoped<IClaimsTransformation, ClaimsTransformer>();
 
-            services.AddControllersWithViews(config => 
+            services.AddControllersWithViews(config =>
             {
-                var defaultAuthBuilder = new AuthorizationPolicyBuilder();
-                var defaultAuthPolicy = defaultAuthBuilder
+                AuthorizationPolicyBuilder defaultAuthBuilder = new AuthorizationPolicyBuilder();
+                AuthorizationPolicy defaultAuthPolicy = defaultAuthBuilder
                     .RequireAuthenticatedUser()
                     .Build();
 
