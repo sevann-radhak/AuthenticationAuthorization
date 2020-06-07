@@ -1,0 +1,17 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Authorize";
+    var url = $"/OAuth/Authorize{Model}";
+}
+
+<h1>Authorize </h1>
+
+<p>
+    @Model
+</p>
+
+<form action="@url" method="post">
+    <input type="text" name="username" />
+    <input type="submit"  value="Submit"/>
+</form>
